@@ -16,7 +16,7 @@ async function convertFile({
   }
 
   // 获取输入文件的目录作为工作目录
-  const workingDirectory = path.dirname(sourceFilePath)
+  const workingDirectory = path.dirname(targetFilePath)
 
   // const imagesDir = path.join(workingDirectory, '../images')
   const args = [

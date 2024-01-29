@@ -1,10 +1,11 @@
-var express = require('express')
-const formidable = require('formidable')
-var router = express.Router()
+const express = require('express')
+const router = express.Router()
 const fs = require('fs')
 const path = require('path')
+const formidable = require('formidable')
 const archiver = require('archiver')
 const convertFile = require('../utils/pandoc.js')
+
 const uploadDir = path.join(__dirname, '../public/uploads')
 
 /* GET home page. */
@@ -39,7 +40,7 @@ router.post('/file-converter', function (req, res, next) {
       const newFileName = folderName + '-' + file.originalFilename
       // 创建文件夹
       fs.mkdirSync(path.join(uploadDir, folderName))
-      const newPath = path.join(uploadDir, folderName, newFileName)
+      const newPath = path.join(uploadDir, newFileName)
       fs.renameSync(oldPath, newPath)
 
       // TODO: 转换文件
@@ -59,9 +60,8 @@ router.post('/file-converter', function (req, res, next) {
       await convertFile(options)
 
       // 将转换后的文件与图片打包压缩
-      const output = fs.createWriteStream(
-        path.join(uploadDir, folderName + '.zip')
-      )
+      archiveName = folderName + '.zip'
+      const output = fs.createWriteStream(path.join(uploadDir, archiveName))
       const archive = archiver('zip', {
         zlib: { level: 9 }, // Sets the compression level.
       })
@@ -71,8 +71,8 @@ router.post('/file-converter', function (req, res, next) {
 
       // 在完成时执行的回调
       output.on('close', () => {
-        console.log('文件夹已成功压缩为')
-        res.redirect('/download/uploads/' + folderName + '.zip')
+        console.log('已成功压缩为', archiveName)
+        res.redirect('/download/uploads/' + archiveName)
       })
 
       output.on('end', () => {
